@@ -1,0 +1,38 @@
+name: .NET Unit Tests
+
+# Workflow запускається при push у гілки feature/* та develop,
+# а також при створенні pull request у develop.
+on:
+  push:
+    branches:
+      - 'feature/*'
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      # Крок 1: завантаження коду з репозиторію
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Крок 2: налаштування .NET (версія має збігатися з TargetFramework у .csproj)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # Крок 3: відновлення залежностей (тестовий проєкт тягне за собою SonarNet)
+      - name: Restore dependencies
+        run: dotnet restore SonarNet.Tests/SonarNet.Tests.csproj
+
+      # Крок 4: компіляція без повторного restore
+      - name: Build
+        run: dotnet build SonarNet.Tests/SonarNet.Tests.csproj --no-restore
+
+      # Крок 5: запуск модульних тестів
+      - name: Run unit tests
+        run: dotnet test SonarNet.Tests/SonarNet.Tests.csproj --no-build --verbosity normal
