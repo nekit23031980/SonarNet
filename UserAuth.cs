@@ -32,7 +32,7 @@ public class UserAuth
     {
         if (string.IsNullOrWhiteSpace(username) || password is null)
             return false;
-        if (!_users.TryGetValue(username, out var record))
+        if (!_users.TryGetValue(username.Trim(), out var record))
             return false;
 
         byte[] hash = HashPassword(password, record.Salt);
